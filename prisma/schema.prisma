@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TodoStatus {
+  PENDING
+  DONE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+}
+
+model Member {
+  id        String        @id @default(cuid())
+  slug      String        @unique
+  name      String
+  role      String
+  accent    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  todos     Todo[]
+  reports   DailyReport[]
+}
+
+model Todo {
+  id          String     @id @default(cuid())
+  title       String
+  details     String?
+  status      TodoStatus @default(PENDING)
+  priority    Int
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  memberId    String
+  member      Member     @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId, status, priority])
+}
+
+model DailyReport {
+  id            String           @id @default(cuid())
+  workDate      DateTime         @db.Date
+  attendance    AttendanceStatus @default(PRESENT)
+  morningPlan   String           @default("") @db.Text
+  eveningReport String           @default("") @db.Text
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  memberId      String
+  member        Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, workDate])
+  @@index([workDate])
+}
