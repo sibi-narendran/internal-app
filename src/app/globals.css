@@ -115,6 +115,8 @@ textarea:focus-visible {
 
 .profile-menu {
   align-self: stretch;
+  grid-column: 3;
+  justify-self: end;
   position: relative;
 }
 
@@ -1006,12 +1008,16 @@ textarea:focus-visible {
 
   .app-topbar {
     gap: 8px;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     margin-bottom: 14px;
     top: 8px;
   }
 
   .top-nav {
+    grid-column: 1;
+  }
+
+  .profile-menu {
     grid-column: 2;
   }
 
