@@ -45,7 +45,11 @@ export default async function TodosPage({ searchParams }: TodosPageProps) {
         members={members}
         selectedMemberSlug={params.member}
       />
-      <TodoHistory history={history} members={members} />
+      <TodoHistory
+        history={history}
+        members={members}
+        selectedMemberSlug={params.member}
+      />
     </section>
   );
 }
@@ -59,22 +63,23 @@ const historyDateFormatter = new Intl.DateTimeFormat("en-IN", {
 function TodoHistory({
   history,
   members,
+  selectedMemberSlug,
 }: {
   history: TodoHistoryItem[];
   members: TodoPageMember[];
+  selectedMemberSlug?: string;
 }) {
-  const doneCount = history.filter(
+  const selectedMember =
+    members.find((member) => member.slug === selectedMemberSlug) ?? members[0];
+  const selectedHistory = selectedMember
+    ? history.filter((todo) => todo.member.id === selectedMember.id)
+    : [];
+  const doneCount = selectedHistory.filter(
     (todo) => todo.status === TodoStatus.DONE,
   ).length;
-  const deletedCount = history.filter(
+  const deletedCount = selectedHistory.filter(
     (todo) => todo.status === TodoStatus.DELETED,
   ).length;
-  const historyByMemberId = new Map(
-    members.map((member) => [
-      member.id,
-      history.filter((todo) => todo.member.id === member.id),
-    ]),
-  );
 
   return (
     <section className="todo-history" aria-labelledby="todo-history-heading">
@@ -89,50 +94,40 @@ function TodoHistory({
         </div>
       </header>
 
-      <div className="history-person-grid">
-        {members.map((member) => {
-          const memberHistory = historyByMemberId.get(member.id) ?? [];
-          const memberDoneCount = memberHistory.filter(
-            (todo) => todo.status === TodoStatus.DONE,
-          ).length;
-          const memberDeletedCount = memberHistory.filter(
-            (todo) => todo.status === TodoStatus.DELETED,
-          ).length;
+      {selectedMember ? (
+        <section className="history-person">
+          <header className="history-person-heading">
+            <span
+              aria-hidden="true"
+              className="member-dot"
+              style={{ backgroundColor: selectedMember.accent }}
+            />
+            <div>
+              <h3>{selectedMember.name}</h3>
+              <p>{selectedMember.role}</p>
+            </div>
+            <div
+              className="history-person-counts"
+              aria-label={`${selectedMember.name} archive counts`}
+            >
+              <span>Done {doneCount}</span>
+              <span>Deleted {deletedCount}</span>
+            </div>
+          </header>
 
-          return (
-            <section className="history-person" key={member.id}>
-              <header className="history-person-heading">
-                <span
-                  aria-hidden="true"
-                  className="member-dot"
-                  style={{ backgroundColor: member.accent }}
-                />
-                <div>
-                  <h3>{member.name}</h3>
-                  <p>{member.role}</p>
-                </div>
-                <div
-                  className="history-person-counts"
-                  aria-label={`${member.name} archive counts`}
-                >
-                  <span>Done {memberDoneCount}</span>
-                  <span>Deleted {memberDeletedCount}</span>
-                </div>
-              </header>
-
-              {memberHistory.length > 0 ? (
-                <ol className="history-list">
-                  {memberHistory.map((todo) => (
-                    <TodoHistoryRow key={todo.id} todo={todo} />
-                  ))}
-                </ol>
-              ) : (
-                <p className="history-empty">No archive yet.</p>
-              )}
-            </section>
-          );
-        })}
-      </div>
+          {selectedHistory.length > 0 ? (
+            <ol className="history-list">
+              {selectedHistory.map((todo) => (
+                <TodoHistoryRow key={todo.id} todo={todo} />
+              ))}
+            </ol>
+          ) : (
+            <p className="history-empty">No archive yet.</p>
+          )}
+        </section>
+      ) : (
+        <p className="history-empty">No completed or deleted todos yet.</p>
+      )}
     </section>
   );
 }

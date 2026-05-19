@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import { AppNav } from "@/components/AppNav";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
@@ -41,8 +42,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <ServiceWorkerRegister />
         <div className="app-shell">
-          <main className="app-main">{children}</main>
-          <AppNav />
+          <main className="app-main">
+            <Suspense fallback={null}>
+              <AppNav />
+            </Suspense>
+            {children}
+          </main>
         </div>
       </body>
     </html>

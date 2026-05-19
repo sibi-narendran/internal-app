@@ -3,22 +3,8 @@ import {
   TodoStatus,
 } from "@/generated/prisma/enums";
 import { getMonthRange, getWorkDateFromInput, toInputDate } from "@/lib/dates";
+import { TEAM_MEMBERS } from "@/lib/members";
 import { prisma } from "@/lib/prisma";
-
-const TEAM_MEMBERS = [
-  {
-    slug: "athithya",
-    name: "Athithya",
-    role: "Development",
-    accent: "#0f766e",
-  },
-  {
-    slug: "sarvesh",
-    name: "Sarvesh",
-    role: "Sales",
-    accent: "#c2410c",
-  },
-] as const;
 
 export async function ensureMembers() {
   await Promise.all(

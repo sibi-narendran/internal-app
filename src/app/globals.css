@@ -58,7 +58,7 @@ textarea:focus-visible {
   margin: 0 auto;
   max-width: 1120px;
   min-height: 100vh;
-  padding: 20px 16px 104px;
+  padding: 16px 16px 48px;
 }
 
 .page {
@@ -88,29 +88,119 @@ textarea:focus-visible {
   text-transform: uppercase;
 }
 
-.bottom-nav {
+.app-topbar {
   align-items: center;
-  background: rgba(255, 255, 255, 0.96);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 520px) auto;
+  margin: 0 0 18px;
+  position: sticky;
+  top: 12px;
+  z-index: 30;
+}
+
+.top-nav {
+  align-items: center;
+  background: var(--surface-muted);
   border: 1px solid var(--border);
   border-radius: 8px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
   box-shadow: var(--shadow);
   display: grid;
-  gap: 8px;
+  gap: 6px;
+  grid-column: 2;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  left: 50%;
-  max-width: min(420px, calc(100vw - 24px));
-  padding: 8px;
-  position: fixed;
-  transform: translateX(-50%);
+  padding: 6px;
   width: 100%;
-  z-index: 20;
+}
+
+.profile-menu {
+  align-self: stretch;
+  position: relative;
+}
+
+.profile-button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  height: 100%;
+  justify-content: center;
+  min-height: 58px;
+  position: relative;
+  width: 58px;
+}
+
+.profile-dot {
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  bottom: 12px;
+  height: 12px;
+  position: absolute;
+  right: 12px;
+  width: 12px;
+}
+
+.profile-options {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 4px;
+  left: 0;
+  min-width: 220px;
+  padding: 6px;
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 40;
+}
+
+.profile-option {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  gap: 9px;
+  grid-template-columns: 12px minmax(0, 1fr) 18px;
+  min-height: 48px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.profile-option.active {
+  background: var(--surface-muted);
+}
+
+.profile-option b,
+.profile-option small {
+  display: block;
+  line-height: 1.2;
+}
+
+.profile-option b {
+  font-size: 0.92rem;
+}
+
+.profile-option small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
 }
 
 .nav-link {
   align-items: center;
+  background: transparent;
+  border: 0;
   border-radius: 8px;
   color: var(--muted);
+  cursor: pointer;
   display: flex;
   font-size: 0.92rem;
   font-weight: 800;
@@ -122,6 +212,7 @@ textarea:focus-visible {
 
 .nav-link.active {
   background: var(--primary);
+  box-shadow: 0 1px 5px rgba(32, 33, 36, 0.08);
   color: #ffffff;
 }
 
@@ -472,12 +563,15 @@ textarea:focus-visible {
 
 .sync-note {
   align-self: flex-end;
+  align-items: center;
   background: #fff7ed;
   border: 1px solid #fed7aa;
   border-radius: 8px;
   color: var(--amber);
+  display: inline-flex;
   font-size: 0.85rem;
   font-weight: 800;
+  gap: 8px;
   padding: 8px 12px;
 }
 
@@ -659,31 +753,40 @@ textarea:focus-visible {
 
 .daily-toolbar {
   align-items: center;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .date-picker {
   align-items: center;
-  align-self: flex-start;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  display: flex;
-  gap: 9px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
   min-height: 52px;
   padding: 8px 10px;
+  width: 100%;
+}
+
+.date-picker-label {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .date-picker input {
   min-height: 34px;
+  min-width: 0;
   padding: 0 8px;
 }
 
 .month-picker {
-  min-width: 190px;
+  min-width: 0;
 }
 
 .report-card {
@@ -898,7 +1001,27 @@ textarea:focus-visible {
   }
 
   .app-main {
-    padding: 14px 10px 104px;
+    padding: 10px 10px 36px;
+  }
+
+  .app-topbar {
+    gap: 8px;
+    grid-template-columns: auto minmax(0, 1fr);
+    margin-bottom: 14px;
+    top: 8px;
+  }
+
+  .top-nav {
+    grid-column: 2;
+  }
+
+  .profile-button {
+    min-height: 60px;
+    width: 52px;
+  }
+
+  .profile-options {
+    min-width: min(220px, calc(100vw - 20px));
   }
 
   .page {
@@ -924,8 +1047,8 @@ textarea:focus-visible {
     max-width: none;
     padding: 6px;
     position: sticky;
-    top: 8px;
-    z-index: 10;
+    top: 70px;
+    z-index: 20;
   }
 
   .todo-column,
@@ -992,32 +1115,17 @@ textarea:focus-visible {
     width: var(--touch);
   }
 
-  .bottom-nav {
-    bottom: calc(8px + env(safe-area-inset-bottom));
-    max-width: calc(100vw - 16px);
-    padding: 6px;
-  }
-
   .nav-link {
     min-height: 48px;
   }
 
   .daily-toolbar {
-    align-items: stretch;
-    flex-direction: column;
     gap: 8px;
-  }
-
-  .date-picker {
-    align-self: stretch;
+    grid-template-columns: 1fr;
   }
 
   .date-picker input {
-    flex: 1;
-  }
-
-  .month-picker {
-    min-width: 0;
+    width: 100%;
   }
 
   .segmented-control {

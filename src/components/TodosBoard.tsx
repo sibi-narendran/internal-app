@@ -73,11 +73,10 @@ function buildGroups(members: TodoPageMember[]) {
 export function TodosBoard({ members, selectedMemberSlug }: TodosBoardProps) {
   const router = useRouter();
   const [groups, setGroups] = useState(() => buildGroups(members));
-  const [selectedMemberId, setSelectedMemberId] = useState(
+  const selectedMemberId =
     members.find((member) => member.slug === selectedMemberSlug)?.id ??
-      members[0]?.id ??
-      "",
-  );
+    members[0]?.id ??
+    "";
   const [openAddFor, setOpenAddFor] = useState<string | null>(null);
   const [isOrdering, startOrdering] = useTransition();
 
@@ -150,29 +149,6 @@ export function TodosBoard({ members, selectedMemberSlug }: TodosBoardProps) {
 
   return (
     <div className="todos-layout">
-      <div className="mobile-member-switcher" aria-label="Todo owner view">
-        {memberList.map((member) => (
-          <button
-            aria-pressed={selectedMemberId === member.id}
-            className={
-              selectedMemberId === member.id
-                ? "member-switch active"
-                : "member-switch"
-            }
-            key={member.id}
-            onClick={() => {
-              setSelectedMemberId(member.id);
-              setOpenAddFor(null);
-              router.replace(`/todos?member=${member.slug}`, { scroll: false });
-            }}
-            type="button"
-          >
-            <span>{member.name}</span>
-            <b>{member.todos.length}</b>
-          </button>
-        ))}
-      </div>
-
       <DndContext
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
@@ -250,7 +226,12 @@ export function TodosBoard({ members, selectedMemberSlug }: TodosBoardProps) {
         </div>
       </DndContext>
 
-      {isOrdering ? <div className="sync-note">Saving order...</div> : null}
+      {isOrdering ? (
+        <div className="sync-note">
+          <Loader2 aria-hidden="true" className="spin" size={16} />
+          <span>Saving order...</span>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -321,6 +302,9 @@ function SortableTodoCard({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<
+    "save" | "complete" | "delete" | null
+  >(null);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: todo.id, disabled: isEditing });
   const style = {
@@ -336,24 +320,39 @@ function SortableTodoCard({
     .join(" ");
 
   function saveTodo(formData: FormData) {
+    setPendingAction("save");
     startTransition(async () => {
-      await updateTodo(formData);
-      setIsEditing(false);
-      onChange();
+      try {
+        await updateTodo(formData);
+        setIsEditing(false);
+        onChange();
+      } finally {
+        setPendingAction(null);
+      }
     });
   }
 
   function finishTodo() {
+    setPendingAction("complete");
     startTransition(async () => {
-      await completeTodo(todo.id);
-      onChange();
+      try {
+        await completeTodo(todo.id);
+        onChange();
+      } finally {
+        setPendingAction(null);
+      }
     });
   }
 
   function removeTodo() {
+    setPendingAction("delete");
     startTransition(async () => {
-      await deleteTodo(todo.id);
-      onChange();
+      try {
+        await deleteTodo(todo.id);
+        onChange();
+      } finally {
+        setPendingAction(null);
+      }
     });
   }
 
@@ -406,7 +405,7 @@ function SortableTodoCard({
               <X aria-hidden="true" size={18} />
             </button>
             <button className="primary-button compact-button" disabled={isPending}>
-              {isPending ? (
+              {pendingAction === "save" ? (
                 <Loader2 aria-hidden="true" className="spin" size={18} />
               ) : (
                 <Save aria-hidden="true" size={18} />
@@ -438,7 +437,11 @@ function SortableTodoCard({
               onClick={finishTodo}
               type="button"
             >
-              <Check aria-hidden="true" size={18} />
+              {pendingAction === "complete" ? (
+                <Loader2 aria-hidden="true" className="spin" size={18} />
+              ) : (
+                <Check aria-hidden="true" size={18} />
+              )}
             </button>
             <button
               aria-label={`Delete ${todo.title}`}
@@ -447,7 +450,11 @@ function SortableTodoCard({
               onClick={removeTodo}
               type="button"
             >
-              <Trash2 aria-hidden="true" size={17} />
+              {pendingAction === "delete" ? (
+                <Loader2 aria-hidden="true" className="spin" size={17} />
+              ) : (
+                <Trash2 aria-hidden="true" size={17} />
+              )}
             </button>
           </div>
         </>
