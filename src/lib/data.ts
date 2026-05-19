@@ -45,6 +45,7 @@ export async function ensureMembers() {
 }
 
 export type TodoPageMember = Awaited<ReturnType<typeof getTodoPageData>>[number];
+export type TodoHistoryItem = Awaited<ReturnType<typeof getTodoHistoryData>>[number];
 
 export async function getTodoPageData() {
   await ensureMembers();
@@ -82,6 +83,46 @@ export async function getTodoPageData() {
       details: todo.details,
       priority: todo.priority,
     })),
+  }));
+}
+
+export async function getTodoHistoryData() {
+  await ensureMembers();
+
+  const todos = await prisma.todo.findMany({
+    where: {
+      status: {
+        in: [TodoStatus.DONE, TodoStatus.DELETED],
+      },
+    },
+    include: {
+      member: true,
+    },
+    orderBy: [
+      {
+        updatedAt: "desc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
+    take: 100,
+  });
+
+  return todos.map((todo) => ({
+    id: todo.id,
+    title: todo.title,
+    details: todo.details,
+    status: todo.status,
+    completedAt: todo.completedAt?.toISOString() ?? null,
+    deletedAt: todo.deletedAt?.toISOString() ?? null,
+    updatedAt: todo.updatedAt.toISOString(),
+    member: {
+      id: todo.member.id,
+      name: todo.member.name,
+      role: todo.member.role,
+      accent: todo.member.accent,
+    },
   }));
 }
 

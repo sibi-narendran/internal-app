@@ -115,6 +115,7 @@ export async function completeTodo(todoId: string) {
     data: {
       status: TodoStatus.DONE,
       completedAt: new Date(),
+      deletedAt: null,
     },
   });
 
@@ -126,9 +127,14 @@ export async function deleteTodo(todoId: string) {
     return;
   }
 
-  await prisma.todo.delete({
+  await prisma.todo.update({
     where: {
       id: todoId,
+    },
+    data: {
+      status: TodoStatus.DELETED,
+      deletedAt: new Date(),
+      completedAt: null,
     },
   });
 
