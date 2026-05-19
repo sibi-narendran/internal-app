@@ -43,6 +43,7 @@ type Todo = TodoPageMember["todos"][number];
 
 type MemberGroup = {
   id: string;
+  slug: string;
   name: string;
   role: string;
   accent: string;
@@ -51,12 +52,14 @@ type MemberGroup = {
 
 type TodosBoardProps = {
   members: TodoPageMember[];
+  selectedMemberSlug?: string;
 };
 
 function buildGroups(members: TodoPageMember[]) {
   return members.reduce<Record<string, MemberGroup>>((groups, member) => {
     groups[member.id] = {
       id: member.id,
+      slug: member.slug,
       name: member.name,
       role: member.role,
       accent: member.accent,
@@ -67,9 +70,14 @@ function buildGroups(members: TodoPageMember[]) {
   }, {});
 }
 
-export function TodosBoard({ members }: TodosBoardProps) {
+export function TodosBoard({ members, selectedMemberSlug }: TodosBoardProps) {
   const router = useRouter();
   const [groups, setGroups] = useState(() => buildGroups(members));
+  const [selectedMemberId, setSelectedMemberId] = useState(
+    members.find((member) => member.slug === selectedMemberSlug)?.id ??
+      members[0]?.id ??
+      "",
+  );
   const [openAddFor, setOpenAddFor] = useState<string | null>(null);
   const [isOrdering, startOrdering] = useTransition();
 
@@ -142,6 +150,29 @@ export function TodosBoard({ members }: TodosBoardProps) {
 
   return (
     <div className="todos-layout">
+      <div className="mobile-member-switcher" aria-label="Todo owner view">
+        {memberList.map((member) => (
+          <button
+            aria-pressed={selectedMemberId === member.id}
+            className={
+              selectedMemberId === member.id
+                ? "member-switch active"
+                : "member-switch"
+            }
+            key={member.id}
+            onClick={() => {
+              setSelectedMemberId(member.id);
+              setOpenAddFor(null);
+              router.replace(`/todos?member=${member.slug}`, { scroll: false });
+            }}
+            type="button"
+          >
+            <span>{member.name}</span>
+            <b>{member.todos.length}</b>
+          </button>
+        ))}
+      </div>
+
       <DndContext
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
@@ -149,7 +180,14 @@ export function TodosBoard({ members }: TodosBoardProps) {
       >
         <div className="todo-columns">
           {memberList.map((member) => (
-            <section className="todo-column" key={member.id}>
+            <section
+              className={
+                selectedMemberId === member.id
+                  ? "todo-column selected"
+                  : "todo-column"
+              }
+              key={member.id}
+            >
               <div className="member-heading">
                 <span
                   aria-hidden="true"

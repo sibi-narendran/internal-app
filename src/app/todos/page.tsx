@@ -3,11 +3,25 @@ import { getTodoPageData } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
-export default async function TodosPage() {
+type TodosPageProps = {
+  searchParams: Promise<{
+    member?: string;
+  }>;
+};
+
+export default async function TodosPage({ searchParams }: TodosPageProps) {
+  const params = await searchParams;
   const members = await getTodoPageData();
-  const boardKey = members
-    .map((member) => `${member.id}:${member.todos.map((todo) => todo.id).join(",")}`)
-    .join("|");
+  const boardKey = JSON.stringify(
+    members.map((member) => ({
+      id: member.id,
+      todos: member.todos.map((todo) => ({
+        id: todo.id,
+        title: todo.title,
+        details: todo.details,
+      })),
+    })),
+  );
 
   return (
     <section className="page">
@@ -17,7 +31,11 @@ export default async function TodosPage() {
           <h1>Pending Todos</h1>
         </div>
       </header>
-      <TodosBoard key={boardKey} members={members} />
+      <TodosBoard
+        key={`${boardKey}:${params.member ?? ""}`}
+        members={members}
+        selectedMemberSlug={params.member}
+      />
     </section>
   );
 }

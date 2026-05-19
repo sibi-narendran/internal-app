@@ -11,6 +11,7 @@
   --danger-soft: #fee4e2;
   --amber: #b7791f;
   --shadow: 0 12px 36px rgba(32, 33, 36, 0.08);
+  --touch: 44px;
 }
 
 * {
@@ -26,6 +27,7 @@ body {
   color: var(--text);
   margin: 0;
   min-height: 100vh;
+  overflow-wrap: anywhere;
 }
 
 button,
@@ -130,6 +132,56 @@ textarea:focus-visible {
   gap: 16px;
 }
 
+.mobile-member-switcher {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 520px;
+  padding: 8px;
+}
+
+.member-switch {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  font-weight: 900;
+  gap: 8px;
+  justify-content: center;
+  min-height: var(--touch);
+  padding: 0 12px;
+}
+
+.member-switch.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.member-switch b {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  color: var(--text);
+  display: inline-flex;
+  font-size: 0.78rem;
+  height: 24px;
+  justify-content: center;
+  min-width: 24px;
+  padding: 0 7px;
+}
+
+.member-switch:not(.active) b {
+  background: var(--surface-muted);
+  color: var(--muted);
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -155,6 +207,7 @@ textarea:focus-visible {
   color: var(--text);
   min-height: 46px;
   padding: 0 12px;
+  font-size: 1rem;
   width: 100%;
 }
 
@@ -180,7 +233,7 @@ textarea:focus-visible {
   color: #ffffff;
   font-weight: 900;
   gap: 8px;
-  min-height: 46px;
+  min-height: var(--touch);
   padding: 0 16px;
   white-space: nowrap;
 }
@@ -199,7 +252,23 @@ textarea:focus-visible {
 .report-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.todo-column {
+  display: none;
+}
+
+.todo-column.selected {
+  display: flex;
+}
+
+.report-card {
+  display: none;
+}
+
+.report-card.selected {
+  display: flex;
 }
 
 .todo-column,
@@ -211,10 +280,9 @@ textarea:focus-visible {
 }
 
 .todo-column {
-  display: flex;
   flex-direction: column;
   min-height: 220px;
-  padding: 12px;
+  padding: 14px;
 }
 
 .member-heading {
@@ -251,7 +319,7 @@ textarea:focus-visible {
   display: inline-flex;
   font-size: 0.8rem;
   font-weight: 900;
-  height: 28px;
+  height: 30px;
   justify-content: center;
   min-width: 28px;
   padding: 0 8px;
@@ -273,7 +341,7 @@ textarea:focus-visible {
   border: 1px solid var(--border);
   border-radius: 8px;
   display: grid;
-  gap: 8px;
+  gap: 10px;
   grid-template-columns: minmax(0, 1fr) auto;
   margin-top: 12px;
   padding: 10px;
@@ -292,7 +360,7 @@ textarea:focus-visible {
 .todo-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-top: 12px;
 }
 
@@ -302,11 +370,11 @@ textarea:focus-visible {
   border: 1px solid var(--border);
   border-radius: 8px;
   display: grid;
-  gap: 8px;
-  grid-template-columns: 36px minmax(0, 1fr) auto;
-  min-height: 58px;
-  padding: 8px;
-  touch-action: none;
+  gap: 10px;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  min-height: 64px;
+  padding: 10px;
+  touch-action: auto;
 }
 
 .todo-card.dragging {
@@ -341,7 +409,7 @@ textarea:focus-visible {
 
 .todo-actions {
   display: flex;
-  gap: 6px;
+  gap: 7px;
 }
 
 .todo-edit-form {
@@ -362,8 +430,9 @@ textarea:focus-visible {
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
-  height: 36px;
-  width: 36px;
+  flex: 0 0 auto;
+  height: 40px;
+  width: 40px;
 }
 
 .drag-handle {
@@ -428,7 +497,7 @@ textarea:focus-visible {
   box-shadow: var(--shadow);
   display: flex;
   gap: 9px;
-  min-height: 50px;
+  min-height: 52px;
   padding: 8px 10px;
 }
 
@@ -442,9 +511,8 @@ textarea:focus-visible {
 }
 
 .report-card {
-  display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   padding: 14px;
 }
 
@@ -492,7 +560,7 @@ textarea:focus-visible {
   font-size: 0.78rem;
   font-weight: 900;
   justify-content: center;
-  min-height: 38px;
+  min-height: 42px;
   padding: 0 8px;
   text-align: center;
 }
@@ -649,13 +717,119 @@ textarea:focus-visible {
 }
 
 @media (max-width: 760px) {
+  :root {
+    --touch: 46px;
+  }
+
   .app-main {
-    padding: 18px 12px 104px;
+    padding: 14px 10px 104px;
+  }
+
+  .page {
+    gap: 14px;
+  }
+
+  .page-header {
+    min-height: 48px;
+  }
+
+  .page-header h1 {
+    font-size: 1.72rem;
+    line-height: 1.08;
   }
 
   .todo-columns,
   .report-grid {
     grid-template-columns: 1fr;
+  }
+
+  .mobile-member-switcher {
+    box-shadow: 0 8px 24px rgba(32, 33, 36, 0.06);
+    max-width: none;
+    padding: 6px;
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+  }
+
+  .todo-column,
+  .report-card,
+  .month-report {
+    box-shadow: 0 8px 24px rgba(32, 33, 36, 0.06);
+  }
+
+  .member-heading {
+    gap: 9px;
+  }
+
+  .member-actions {
+    gap: 8px;
+  }
+
+  .column-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .column-add-actions {
+    justify-content: flex-end;
+  }
+
+  .todo-card {
+    align-items: start;
+    grid-template-columns: 44px minmax(0, 1fr);
+    min-height: 72px;
+    padding: 10px;
+  }
+
+  .todo-copy {
+    padding-top: 2px;
+  }
+
+  .todo-copy p {
+    font-size: 0.96rem;
+  }
+
+  .todo-actions {
+    grid-column: 2 / -1;
+    justify-content: flex-end;
+  }
+
+  .todo-card.editing .drag-handle {
+    display: none;
+  }
+
+  .todo-edit-form {
+    grid-column: 1 / -1;
+  }
+
+  .todo-edit-actions {
+    justify-content: stretch;
+  }
+
+  .todo-edit-actions .primary-button,
+  .column-add-actions .primary-button {
+    flex: 1;
+  }
+
+  .icon-button {
+    height: var(--touch);
+    width: var(--touch);
+  }
+
+  .bottom-nav {
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    max-width: calc(100vw - 16px);
+    padding: 6px;
+  }
+
+  .nav-link {
+    min-height: 48px;
+  }
+
+  .daily-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .date-picker {
@@ -674,6 +848,15 @@ textarea:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .field textarea {
+    min-height: 154px;
+  }
+
+  .report-save {
+    align-self: stretch;
+    width: 100%;
+  }
+
   .monthly-header {
     align-items: flex-start;
     flex-direction: column;
@@ -682,5 +865,41 @@ textarea:focus-visible {
 
   .month-report-grid {
     grid-template-columns: 1fr;
+  }
+
+  .month-report-heading {
+    align-items: flex-start;
+  }
+
+  .attendance-pill {
+    margin-top: 1px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-main {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .todo-column,
+  .report-card,
+  .month-report {
+    padding: 10px;
+  }
+
+  .todo-card {
+    gap: 8px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 8px;
+  }
+
+  .todo-actions {
+    gap: 6px;
+  }
+
+  .segmented-control span {
+    font-size: 0.76rem;
+    padding: 0 6px;
   }
 }

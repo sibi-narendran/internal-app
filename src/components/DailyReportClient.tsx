@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type FocusEvent, type KeyboardEvent } from "react";
+import { useMemo, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { CalendarDays, Loader2, Save } from "lucide-react";
@@ -31,6 +31,7 @@ type DailyReportClientProps = {
   members: DailyReportMember[];
   month: string;
   monthlyReports: MonthlyReportEntry[];
+  selectedMemberSlug?: string;
 };
 
 export function DailyReportClient({
@@ -38,15 +39,34 @@ export function DailyReportClient({
   members,
   month,
   monthlyReports,
+  selectedMemberSlug,
 }: DailyReportClientProps) {
   const router = useRouter();
+  const [selectedMemberId, setSelectedMemberId] = useState(
+    members.find((member) => member.slug === selectedMemberSlug)?.id ??
+      members[0]?.id ??
+      "",
+  );
+  const selectedMemberReports = useMemo(
+    () =>
+      monthlyReports.filter((report) => report.member.id === selectedMemberId),
+    [monthlyReports, selectedMemberId],
+  );
+  const selectedMember = members.find(
+    (member) => member.id === selectedMemberId,
+  );
+  const selectedMemberQuery = selectedMember
+    ? `&member=${selectedMember.slug}`
+    : "";
 
   function changeDate(nextDate: string) {
-    router.push(`/daily?date=${nextDate}&month=${nextDate.slice(0, 7)}`);
+    router.push(
+      `/daily?date=${nextDate}&month=${nextDate.slice(0, 7)}${selectedMemberQuery}`,
+    );
   }
 
   function changeMonth(nextMonth: string) {
-    router.push(`/daily?date=${date}&month=${nextMonth}`);
+    router.push(`/daily?date=${date}&month=${nextMonth}${selectedMemberQuery}`);
   }
 
   async function saveReport(formData: FormData) {
@@ -56,6 +76,36 @@ export function DailyReportClient({
 
   return (
     <div className="daily-layout">
+      <div className="mobile-member-switcher" aria-label="Daily report owner view">
+        {members.map((member) => (
+          <button
+            aria-pressed={selectedMemberId === member.id}
+            className={
+              selectedMemberId === member.id
+                ? "member-switch active"
+                : "member-switch"
+            }
+            key={member.id}
+            onClick={() => {
+              setSelectedMemberId(member.id);
+              router.replace(
+                `/daily?date=${date}&month=${month}&member=${member.slug}`,
+                { scroll: false },
+              );
+            }}
+            type="button"
+          >
+            <span>{member.name}</span>
+            <b>
+              {
+                monthlyReports.filter((report) => report.member.id === member.id)
+                  .length
+              }
+            </b>
+          </button>
+        ))}
+      </div>
+
       <div className="daily-toolbar">
         <label className="date-picker">
           <CalendarDays aria-hidden="true" size={18} />
@@ -81,7 +131,15 @@ export function DailyReportClient({
 
       <div className="report-grid">
         {members.map((member) => (
-          <form action={saveReport} className="report-card" key={member.id}>
+          <form
+            action={saveReport}
+            className={
+              selectedMemberId === member.id
+                ? "report-card selected"
+                : "report-card"
+            }
+            key={member.id}
+          >
             <input name="memberId" type="hidden" value={member.id} />
             <input name="workDate" type="hidden" value={date} />
             <div className="member-heading report-heading">
@@ -144,7 +202,7 @@ export function DailyReportClient({
         ))}
       </div>
 
-      <MonthlyReportView month={month} reports={monthlyReports} />
+      <MonthlyReportView month={month} reports={selectedMemberReports} />
     </div>
   );
 }
